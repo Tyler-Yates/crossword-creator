@@ -5,7 +5,13 @@ from application.data.word_manager import WordManager
 
 class Board:
     """
-    Represents a board for a single player
+    Represents a board for a single player.
+    Boards are assumed to be square (equal number of rows and columns).
+
+    The board is represented as a two dimensional matrix.
+    Points on the board are represented as tuples of integers: (row, column).
+    The upper-left corner of the board is point (0,0).
+    The lower-right corner of the board is point (board_size-1, board_size-1).
     """
 
     def __init__(self, player_id: str, board_size: int, word_manager: WordManager):
@@ -15,6 +21,7 @@ class Board:
         self.word_manager = word_manager
 
     def _set_board(self, board: List[List[Optional[str]]]):
+        # Helper method for tests to set the board how they like.
         self.board_size = len(board)
         self.board = board
 
