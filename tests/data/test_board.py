@@ -7,7 +7,7 @@ class TestBoard:
         # Create a word manager that accepts any word
         self.word_manager = TestWordManager()
 
-    def test_valid_board(self):
+    def test_valid_board_1(self):
         tiles = [
             ["d", None, "b", "a", "d"],
             ["a", None, "a", "s", None],
@@ -20,7 +20,22 @@ class TestBoard:
         board._set_board(tiles)
 
         invalid_points = board.board_is_valid_crossword()
-        assert [] == invalid_points
+        assert set() == invalid_points
+
+    def test_valid_board_2(self):
+        tiles = [
+            ["d", None, "b", "a", "d"],
+            ["a", None, "a", "s", None],
+            ["d", "a", "d", None, None],
+            ["d", None, None, None, None],
+            ["y", None, None, None, None],
+        ]
+
+        board = Board("test", 5, TestWordManager({"daddy", "dad", "bad", "as"}))
+        board._set_board(tiles)
+
+        invalid_points = board.board_is_valid_crossword()
+        assert set() == invalid_points
 
     def test_invalid_board(self):
         tiles = [
