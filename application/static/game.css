@@ -22,6 +22,10 @@ body {
     opacity: 100;
 }
 
+#upper-info-div {
+    margin-bottom: 20px;
+}
+
 #inner-button-container {
     padding: 0;
     border: 1px solid grey;

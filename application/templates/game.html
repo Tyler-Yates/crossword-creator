@@ -38,11 +38,11 @@
     </div>
 </div>
 
-<div id="button-container" class="container">
+<div id="button-container" class="container-fluid">
     <div class="row">
-        <div id="valid-word-container" class="container side-bar">
+        <div id="valid-word-container" class="container">
             <div>
-                <p><strong>Valid guessed words:</strong></p>
+                <p><strong>Tiles:</strong></p>
             </div>
             <div id="valid-words-div">
             </div>
@@ -51,67 +51,25 @@
             {% for row in game_state.player_ids_to_boards[player_id].board %}
                 {% set outer_loop = loop %}
                 <div class="row btn-row no-gutters">
-                {% for tile in row %}
-                <div class="col">
-                    <button id="space-{{ outer_loop.index0 }}-{{ loop.index0 }}" class="btn btn-tile btn-light btn-block rounded-0" disabled>
-                        {% if tile is none %}
-                            _
-                        {% else %}
-                            {{ tile }}
-                        {% endif %}
-                    </button>
-                </div>
-                {% endfor %}
+                    {% for tile in row %}
+                        <div class="col">
+                            <button id="space-{{ outer_loop.index0 }}-{{ loop.index0 }}"
+                                    class="btn btn-tile btn-light btn-block rounded-0" disabled>
+                                {% if tile is none %}
+                                    &nbsp;
+                                {% else %}
+                                    {{ tile }}
+                                {% endif %}
+                            </button>
+                        </div>
+                    {% endfor %}
                 </div>
             {% endfor %}
         </div>
-    </div>
-    <div id="timer-container" class="container side-bar">
-        <div id="time-remaining-container">
-            <div>
-                <p><strong>Time remaining:</strong></p>
-            </div>
-            <div id="time-remaining-div">
-            </div>
-        </div>
-        <div id="round-score-container">
-            <div id="round-score-label">
-                <p><strong>Round Score:</strong></p>
-            </div>
-            <div id="round-score-div" class="score-div">
-                _
-            </div>
-        </div>
-        <div id="total-score-container">
-            <div id="total-score-label">
-                <p><strong>Total Score:</strong></p>
-            </div>
-            <div id="total-score-div" class="score-div">
-            </div>
+        <div id="right-container" class="container">
+            Peel
         </div>
     </div>
 </div>
-</div>
-
-<div class="container">
-    <div class="row">
-        <div class="col">
-            <hr>
-        </div>
-    </div>
-    <div class="row">
-        <div id="guess-div" class="col">
-            <div class="form-group">
-                <label for="guessWordInput">Guess Word:</label>
-                <input type="text" autocomplete="off" class="form-control" id="guessWordInput" placeholder="Guess">
-            </div>
-            <button id="guessWordSubmit" class="btn btn-primary">Submit</button>
-        </div>
-        <div class="col text-right">
-            <button id="new-game-button" class="btn btn-success">New Game</button>
-        </div>
-    </div>
-</div>
-
 </body>
 </html>
