@@ -13,7 +13,7 @@ LOG = logging.getLogger("GameState")
 @socketio.on("join")
 def joined_event(message):
     """
-        Received when a player joins a game.
+    Received when a player joins a game.
     """
 
     room = message["room"]
