@@ -37,7 +37,7 @@ $(document).ready(function () {
         for (let i = 0; i < data["hand_tiles"].length; i++) {
             const tile = data["hand_tiles"][i];
             const tileElement = document.createElement("BUTTON");
-            tileElement.id = `tile-i`;
+            tileElement.id = `tile-${i}`;
             tileElement.classList.add("btn", "btn-tile", "hand-tile", "btn-light", "rounded-0");
             tileElement.innerText = tile;
 
