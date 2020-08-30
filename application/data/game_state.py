@@ -78,9 +78,6 @@ class GameState:
         if player_id:
             # Add the board data to the response
             game_state = {**game_state, **self.player_ids_to_boards[player_id].get_json()}
-        else:
-            # No player_id indicates a reset of the game so send empty guesses list
-            game_state["player_guesses"] = []
         return game_state
 
     def _generate_player_tiles(self):
