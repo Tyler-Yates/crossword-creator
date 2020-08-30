@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, List
+from typing import Dict, List, Tuple, Optional
 
 from application.data.board import Board
 from application.data.tiles import Tiles
@@ -77,8 +77,26 @@ class GameState:
         game_state = {"num_players": len(self.player_ids_to_names)}
         if player_id:
             # Add the board data to the response
+            game_state["hand_tiles"] = self.player_ids_to_tiles[player_id]
             game_state = {**game_state, **self.player_ids_to_boards[player_id].get_json()}
         return game_state
+
+    def add_tile(self, player_id: str, hand_tile_index: int, board_position: Tuple[int, int]) -> None:
+        """
+        Adds the tile with the given index in the player's hand to their board at the given position.
+
+        Args:
+            player_id: The ID of the player
+            hand_tile_index: The index of the tile in the player's hand
+            board_position: The position on the board
+        """
+        # Remove the tile from the player's hand
+        tile = self.player_ids_to_tiles[player_id].pop(hand_tile_index)
+
+        # Add the tile we are replacing if the position on the board already has a tile
+        replaced_tile = self.player_ids_to_boards[player_id].add_tile(tile, board_position[0], board_position[1])
+        if replaced_tile:
+            self.player_ids_to_tiles[player_id].append(replaced_tile)
 
     def _generate_player_tiles(self):
         for player_id in self.player_ids_to_tiles.keys():

@@ -31,8 +31,8 @@ def joined_event(message):
         LOG.warning(f"User {player_id} has joined invalid room {room}")
 
 
-@socketio.on("guess")
-def guess_word_event(message):
+@socketio.on("add_tile")
+def add_tile_event(message):
     """
     Received when a player guesses a word.
     """
@@ -42,12 +42,13 @@ def guess_word_event(message):
     LOG.info(f"Received guess from {player_id}: {message}")
 
     room = message["room"]
-    guessed_word = message["guess"]
+    hand_tile_index = message["hand_tile_index"]
+    board_position = message["board_position"]
 
     game_state = _get_game_manager().get_game_state(room)
-    word_path = game_state.guess_word(player_id, guessed_word)
+    game_state.add_tile(player_id, hand_tile_index, (board_position[0], board_position[1]))
 
-    emit("guess_reply", {"valid": word_path is not None, "guess": guessed_word, "path": word_path}, to=session_id)
+    emit("board_update", game_state.get_game_state(player_id), to=session_id)
 
 
 @socketio.on("new_game")
