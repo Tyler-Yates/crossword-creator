@@ -110,19 +110,14 @@ class Board:
         self._find_connected_tiles(first_tile[0], first_tile[1], non_empty_tiles)
         return non_empty_tiles
 
-    def board_is_valid_crossword(self) -> Set[Tuple[int, int]]:
+    def _check_valid_words(self) -> Set[Tuple[int, int]]:
         """
-        Returns whether the board represents a valid crossword.
+        Helper method to check that all words in the crossword of the board are valid.
 
         Returns:
-            A set of invalid points on the board. If empty, the board is a valid crossword.
+            A set of points that are part of invalid words.
+            This may be empty, indicating the board is a valid crossword.
         """
-        # First check is to ensure that all tiles on the board are connected.
-        unconnected_points = self._check_connected()
-        if unconnected_points:
-            return unconnected_points
-
-        # Now, ensure all tiles make a valid crossword.
         invalid_points = set()
         # Check across each row
         for row in range(self.board_size):
@@ -171,3 +166,18 @@ class Board:
                     invalid_points.add((self.board_size - 1 - i, col))
 
         return invalid_points
+
+    def board_is_valid_crossword(self) -> Set[Tuple[int, int]]:
+        """
+        Returns whether the board represents a valid crossword.
+
+        Returns:
+            A set of invalid points on the board. If empty, the board is a valid crossword.
+        """
+        # First check is to ensure that all tiles on the board are connected.
+        unconnected_points = self._check_connected()
+        if unconnected_points:
+            return unconnected_points
+
+        # Now, ensure all tiles make a valid crossword of recognized words.
+        return self._check_valid_words()
