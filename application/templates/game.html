@@ -40,11 +40,16 @@
 
 <div id="button-container" class="container-fluid">
     <div class="row">
-        <div id="valid-word-container" class="container">
+        <div id="tiles-container" class="container">
             <div>
                 <p><strong>Tiles:</strong></p>
             </div>
-            <div id="valid-words-div">
+            <div id="tiles-div">
+                {% for tile in game_state.player_ids_to_tiles[player_id] %}
+                    <button id="tile-{{ loop.index0 }}" class="btn btn-tile btn-margin btn-light rounded-0" disabled>
+                        {{ tile }}
+                    </button>
+                {% endfor %}
             </div>
         </div>
         <div id="inner-button-container" class="container">

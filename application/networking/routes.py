@@ -37,6 +37,7 @@ def create_game():
 
     game_state = _get_game_manager().create_game()
     game_state.new_player(player_id, player_name)
+    game_state.start_game()  # TODO do not do this as soon as game starts
     return redirect(f"/games/{game_state.game_name}", code=302)
 
 
