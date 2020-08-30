@@ -49,6 +49,60 @@ class Board:
         self.board[row][col] = None
         return removed_tile
 
+    def _find_connected_tiles(self, row, col, non_empty_tiles_not_visited: set) -> None:
+        """
+        Recursive function used to find all connected tiles from a given point.
+        NOTE: non_empty_tiles_not_visited will be modified by this function.
+
+        Args:
+            row: The starting row
+            col: The starting column
+            non_empty_tiles_not_visited: The complete set of non-empty tiles for this function to work with
+        """
+
+        non_empty_tiles_not_visited.remove((row, col))
+
+        if (row > 0) and (self.board[row - 1][col] is not None) and ((row - 1, col) in non_empty_tiles_not_visited):
+            self._find_connected_tiles(row - 1, col, non_empty_tiles_not_visited)
+        if (
+            (row < self.board_size - 1)
+            and (self.board[row + 1][col] is not None)
+            and ((row + 1, col) in non_empty_tiles_not_visited)
+        ):
+            self._find_connected_tiles(row + 1, col, non_empty_tiles_not_visited)
+        if (col > 0) and (self.board[row][col - 1] is not None) and ((row, col - 1) in non_empty_tiles_not_visited):
+            self._find_connected_tiles(row, col - 1, non_empty_tiles_not_visited)
+        if (
+            (col < self.board_size - 1)
+            and (self.board[row][col + 1] is not None)
+            and ((row, col + 1) in non_empty_tiles_not_visited)
+        ):
+            self._find_connected_tiles(row, col + 1, non_empty_tiles_not_visited)
+
+    def _check_connected(self) -> Set[Tuple[int, int]]:
+        """
+        Function used to check if all tiles on the board are connected.
+
+        Returns:
+            A set of points on the board that are not connected. May be empty which indicates all tiles are connected.
+        """
+        first_tile = None
+        non_empty_tiles = set()
+
+        # Find the first tile and all tiles that are non-empty
+        for row in range(self.board_size):
+            for col in range(self.board_size):
+                tile = self.board[row][col]
+                if tile is not None:
+                    non_empty_tiles.add((row, col))
+                    if first_tile is None:
+                        first_tile = (row, col)
+
+        # Traverse through all tiles reachable from the first tile.
+        # Whatever tiles are left in non_empty_tiles are not connected.
+        self._find_connected_tiles(first_tile[0], first_tile[1], non_empty_tiles)
+        return non_empty_tiles
+
     def board_is_valid_crossword(self) -> Set[Tuple[int, int]]:
         """
         Returns whether the board represents a valid crossword.
@@ -56,8 +110,13 @@ class Board:
         Returns:
             A set of invalid points on the board. If empty, the board is a valid crossword.
         """
-        invalid_points = set()
+        # First check is to ensure that all tiles on the board are connected.
+        unconnected_points = self._check_connected()
+        if unconnected_points:
+            return unconnected_points
 
+        # Now, ensure all tiles make a valid crossword.
+        invalid_points = set()
         # Check across each row
         for row in range(self.board_size):
             current_word = ""
