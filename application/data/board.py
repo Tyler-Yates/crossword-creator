@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple, Set
+from typing import List, Optional, Tuple, Set, Dict
 
 from application.data.word_manager import WordManager
 
@@ -181,3 +181,6 @@ class Board:
 
         # Now, ensure all tiles make a valid crossword of recognized words.
         return self._check_valid_words()
+
+    def get_json(self) -> Dict[str, object]:
+        return {"board": self.board}

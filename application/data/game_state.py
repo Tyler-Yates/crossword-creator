@@ -1,10 +1,12 @@
 import logging
-from typing import Dict
+from typing import Dict, List
 
 from application.data.board import Board
+from application.data.tiles import Tiles
 from application.data.word_manager import WordManager
 
-TILES_PER_PLAYER = 40
+STARTING_TILES_PER_PLAYER = 20
+TILES_PER_PLAYER = STARTING_TILES_PER_PLAYER * 2
 BOARD_SIZE = 25
 
 LOG = logging.getLogger("GameState")
@@ -23,8 +25,10 @@ class GameState:
         self.word_manager = word_manager
 
         self.player_ids_to_names = {}
+        self.player_ids_to_tiles: Dict[str, List[str]] = {}
         self.player_ids_to_boards: Dict[str, Board] = {}
 
+        self.tiles_left = -1
         self.game_running = False
 
     def new_player(self, player_id: str, player_name: str) -> bool:
@@ -46,9 +50,13 @@ class GameState:
         else:
             self._log_info(f"Player {player_id}/{player_name} has joined game.")
             self.player_ids_to_names[player_id] = player_name
+            self.player_ids_to_boards[player_id] = Board(player_id, BOARD_SIZE, self.word_manager)
+            self.player_ids_to_tiles[player_id] = []
             return True
 
     def start_game(self):
+        self.tiles_left = TILES_PER_PLAYER * len(self.player_ids_to_names.keys())
+        self._generate_player_tiles()
         self.game_running = True
         self._log_info("Game started")
 
@@ -68,13 +76,17 @@ class GameState:
         """
         game_state = {"num_players": len(self.player_ids_to_names)}
         if player_id:
-            # Set is not serializable so turn it into a set
-            game_state["player_guesses"] = list(self.valid_guesses.get(player_id, {}))
-            game_state["player_total_score"] = self.scores.get(player_id, 0)
+            # Add the board data to the response
+            game_state = {**game_state, **self.player_ids_to_boards[player_id].get_json()}
         else:
             # No player_id indicates a reset of the game so send empty guesses list
             game_state["player_guesses"] = []
         return game_state
+
+    def _generate_player_tiles(self):
+        for player_id in self.player_ids_to_tiles.keys():
+            self.player_ids_to_tiles[player_id] = Tiles.generate_tiles(STARTING_TILES_PER_PLAYER)
+            self.tiles_left -= STARTING_TILES_PER_PLAYER
 
     def _log_info(self, log_message: str):
         LOG.info("[%s] %s", self.game_name, log_message)
