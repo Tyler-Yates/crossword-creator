@@ -3,19 +3,35 @@
 <head>
     {% include 'head.html' %}
 
-    <title>{{ game_state.game_name }} - Scrambled Words</title>
+    <title>{{ game_state.game_name }} - Crossword Creator</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='game.css') }}">
     <script type="text/javascript" src="{{ url_for('static', filename='vendor/socketio.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='game.js') }}"></script>
 </head>
 <body>
-<div class="text-center">
-    <h1>Game: <span id="game-name">{{ game_state.game_name }}</span></h1>
+<div class="game-header">
+    <h1>Crossword Creator: <span id="game-name">{{ game_state.game_name }}</span></h1>
 </div>
 
-<div class="container">
+<div class="w-100">
     <div class="row">
+        <div class="col">
+            <hr>
+        </div>
+    </div>
+</div>
+
+<div id="upper-info-div" class="container-fluid">
+    <div class="row">
+        <div class="col">
+            <div class="row">
+                Players: 7
+            </div>
+            <div class="row">
+                Tiles Left: 100
+            </div>
+        </div>
         <div class="col">
             <hr>
         </div>
@@ -32,21 +48,23 @@
             </div>
         </div>
         <div id="inner-button-container" class="container">
-            {% for tile in game_state.game_tiles %}
-                {% if loop.index0 is divisibleby(5) %}
-                    {% if loop.index0 != 0 %}
-                        </div>
-                    {% endif %}
-                    <div class="row btn-row no-gutters">
-                {% endif %}
-
+            {% for row in game_state.player_ids_to_boards[player_id].board %}
+                {% set outer_loop = loop %}
+                <div class="row btn-row no-gutters">
+                {% for tile in row %}
                 <div class="col">
-                    <button id="tile-{{ loop.index0 }}" class="btn btn-tile btn-light btn-block rounded-0" disabled>
-                        {{ tile }}
+                    <button id="space-{{ outer_loop.index0 }}-{{ loop.index0 }}" class="btn btn-tile btn-light btn-block rounded-0" disabled>
+                        {% if tile is none %}
+                            _
+                        {% else %}
+                            {{ tile }}
+                        {% endif %}
                     </button>
                 </div>
+                {% endfor %}
+                </div>
             {% endfor %}
-            </div>
+        </div>
     </div>
     <div id="timer-container" class="container side-bar">
         <div id="time-remaining-container">

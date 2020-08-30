@@ -20,8 +20,9 @@ def game_page(game_name: str):
     game_state = _get_game_manager().get_game_state(game_name)
 
     if game_state:
-        player_name = game_state.player_ids_to_names[_get_player_id()]
-        return render_template("game.html", game_state=game_state, player_name=player_name)
+        player_id = _get_player_id()
+        player_name = game_state.player_ids_to_names[player_id]
+        return render_template("game.html", game_state=game_state, player_id=player_id, player_name=player_name)
     return "Could not find game!", 404
 
 
