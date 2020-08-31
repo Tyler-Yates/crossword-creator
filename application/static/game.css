@@ -57,6 +57,19 @@ body {
     background-color: lightcoral;
 }
 
+#primary-info {
+    width: 300px;
+    margin-left: 0;
+    margin-right: 10px;
+}
+
+#message-banner {
+    width: 752px;
+    margin-left: 0;
+    margin-right: 0;
+}
+
 .banner {
-    border: 1px darkgray;
+    padding: 10px;
+    border: solid 1px darkgray;
 }

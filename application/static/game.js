@@ -17,7 +17,7 @@ $(document).ready(function () {
     socket.on("peel", function (data) {
         const player = data["peeling_player"];
         console.log(`Player ${player} has peeled.`);
-        document.getElementById("upper-banner").innerText = `Player ${player} has peeled.`;
+        document.getElementById("message-banner").innerText = `Player ${player} has peeled.`;
 
         handleGameUpdate(data);
     });
