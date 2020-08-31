@@ -32,13 +32,31 @@ body {
     height: 752px;
     width: 752px;
     margin-left: 10px;
+    margin-right: 10px;
 }
 
 #tiles-container {
     width: 300px;
+    padding-left: 0;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+#right-container {
+    width: 200px;
+    padding-left: 0;
+    margin-left: 10px;
     margin-right: 0;
 }
 
 .hand-tile {
     margin: 5px;
+}
+
+.invalid-position {
+    background-color: lightcoral;
+}
+
+.banner {
+    border: 1px darkgray;
 }

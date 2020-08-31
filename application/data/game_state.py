@@ -1,11 +1,11 @@
 import logging
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Set
 
 from application.data.board import Board
 from application.data.tiles import Tiles
 from application.data.word_manager import WordManager
 
-STARTING_TILES_PER_PLAYER = 20
+STARTING_TILES_PER_PLAYER = 5  # TODO change this back
 TILES_PER_PLAYER = STARTING_TILES_PER_PLAYER * 2
 BOARD_SIZE = 25
 
@@ -27,6 +27,7 @@ class GameState:
         self.player_ids_to_names = {}
         self.player_ids_to_tiles: Dict[str, List[str]] = {}
         self.player_ids_to_boards: Dict[str, Board] = {}
+        self.player_ids_to_session_ids: Dict[str, str] = {}
 
         self.tiles_left = -1
         self.game_running = False
@@ -97,6 +98,28 @@ class GameState:
         replaced_tile = self.player_ids_to_boards[player_id].add_tile(tile, board_position[0], board_position[1])
         if replaced_tile:
             self.player_ids_to_tiles[player_id].append(replaced_tile)
+
+    def peel(self, player_id: str) -> Set[Tuple[int, int]]:
+        """
+        Method to call when a player attempts to peel.
+        If the peel is successful, this method will add a tile to every player's hand.
+
+        Args:
+            player_id: The ID of the player
+
+        Returns:
+            A set of positions on the board that are not valid. May be empty, indicating a successful peel.
+        """
+        invalid_positions = self.player_ids_to_boards[player_id].board_is_valid_crossword()
+
+        if len(invalid_positions) == 0:
+            for player_id in self.player_ids_to_tiles.keys():
+                self.player_ids_to_tiles[player_id].append(Tiles.generate_tile())
+                self.tiles_left -= 1
+
+        # TODO handle winning conditions
+
+        return invalid_positions
 
     def _generate_player_tiles(self):
         for player_id in self.player_ids_to_tiles.keys():

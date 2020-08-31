@@ -19,10 +19,10 @@ class Tiles:
         Returns:
             The tiles.
         """
-        return [Tiles._generate_tile() for _ in range(num_tiles)]
+        return [Tiles.generate_tile() for _ in range(num_tiles)]
 
     @staticmethod
-    def _generate_tile() -> str:
+    def generate_tile() -> str:
         return random.choice(
             [
                 "a",

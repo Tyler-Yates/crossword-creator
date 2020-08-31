@@ -25,6 +25,7 @@ def joined_event(message):
     game_state = _get_game_manager().get_game_state(room)
     if game_state:
         LOG.info(f"User {player_id} has joined room {room}")
+        game_state.player_ids_to_session_ids[player_id] = session_id
         # Only send the game_state update to the SocketIO session ID as the other players do not need to know
         emit("game_state", game_state.get_game_state(player_id=player_id), to=session_id)
     else:
@@ -53,33 +54,33 @@ def add_tile_event(message):
 
 @socketio.on("new_game")
 def new_game_event(message):
-    LOG.debug(f"Received new_game: {message}")
-
-    room = message["room"]
-
-    game_state = _get_game_manager().get_game_state(room)
-    if game_state:
-        game_state.new_board()
-    else:
-        game_state = _get_game_manager().create_game_for_name(room)
-
-    emit("game_state", game_state.get_game_state(), room=room)
+    # TODO
+    pass
 
 
-@socketio.on("timer_expired")
-def timer_expired_event(message):
-    LOG.debug(f"Received timer_expired: {message}")
-
+@socketio.on("peel")
+def peel_event(message):
     session_id = flask.request.sid
     player_id = _get_player_id()
+    LOG.info(f"Received peel from {player_id}: {message}")
+
     room = message["room"]
 
     game_state = _get_game_manager().get_game_state(room)
-
     if game_state:
-        emit("game_over", game_state.get_score_state(player_id), to=session_id)
-    else:
-        LOG.warning(f"Received timer_expired message from Player {player_id} for invalid game {room}")
+        invalid_positions = game_state.peel(player_id)
+        if len(invalid_positions) == 0:
+            # If the peel was successful, notify all players
+            for player_id in game_state.player_ids_to_session_ids.keys():
+                data_to_send = {
+                    "peeling_player": game_state.player_ids_to_names[player_id],
+                    **game_state.get_game_state(player_id),
+                }
+                player_session_id = game_state.player_ids_to_session_ids[player_id]
+                emit("peel", data_to_send, to=player_session_id)
+        else:
+            # If the peel is not valid, only the player who tried to peel should get a message
+            emit("unsuccessful_peel", {"invalid_positions": list(invalid_positions)}, to=session_id)
 
 
 def _get_player_id() -> str:

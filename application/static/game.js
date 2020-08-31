@@ -14,35 +14,26 @@ $(document).ready(function () {
         console.log(data);
     });
 
+    socket.on("peel", function (data) {
+        const player = data["peeling_player"];
+        console.log(`Player ${player} has peeled.`);
+        document.getElementById("upper-banner").innerText = `Player ${player} has peeled.`;
+
+        handleGameUpdate(data);
+    });
+
+    socket.on("unsuccessful_peel", function (data) {
+        console.log(`Unsuccessful peel.`);
+        data["invalid_positions"].forEach(function (position) {
+            const invalidPosition = document.getElementById(`space-${position[0]}-${position[1]}`);
+            invalidPosition.classList.add("invalid-position");
+        })
+    });
+
     socket.on("board_update", function (data) {
         console.log(data);
 
-        // Board update
-        // TODO make the board size pull from the data
-        for (let r = 0; r < 25; r++) {
-            let row = data["board"][r];
-            for (let c = 0; c < 25; c++) {
-                let boardTile = row[c];
-
-                if (boardTile == null) {
-                    boardTile = "&nbsp;"
-                }
-
-                document.getElementById(`space-${r}-${c}`).innerHTML = boardTile;
-            }
-        }
-
-        // Hand tiles update
-        $("#tiles-div").empty();
-        for (let i = 0; i < data["hand_tiles"].length; i++) {
-            const tile = data["hand_tiles"][i];
-            const tileElement = document.createElement("BUTTON");
-            tileElement.id = `tile-${i}`;
-            tileElement.classList.add("btn", "btn-tile", "hand-tile", "btn-light", "rounded-0");
-            tileElement.innerText = tile;
-
-            document.getElementById("tiles-div").appendChild(tileElement);
-        }
+        handleGameUpdate(data);
     });
 
     socket.on("game_over", function (data) {
@@ -57,6 +48,53 @@ function end_game() {
     // const guessButtonElement = document.getElementById("guessWordSubmit");
     // const disabledAttribute = document.createAttribute("disabled");
     // guessButtonElement.setAttributeNode(disabledAttribute);
+}
+
+function handleGameUpdate(data) {
+    ///////////////////////////////////////////////////////////////
+        // Board update
+        for (let r = 0; r < data["board"].length; r++) {
+            let row = data["board"][r];
+            for (let c = 0; c < row.length; c++) {
+                let boardTile = row[c];
+
+                if (boardTile == null) {
+                    boardTile = "&nbsp;"
+                }
+
+                document.getElementById(`space-${r}-${c}`).innerHTML = boardTile;
+            }
+        }
+
+        ///////////////////////////////////////////////////////////////
+        // Hand tiles update
+
+        // Clear out all tile buttons to ensure we have a clean state
+        $("#tiles-div").empty();
+
+        // Ensure the peel button is enabled or disabled appropriately
+        if (data["hand_tiles"].length === 0) {
+            const peelButton = document.getElementById("peel-button");
+            peelButton.classList.remove("btn-light");
+            peelButton.classList.add("btn-primary");
+            peelButton.removeAttribute("disabled");
+        } else {
+            const peelButton = document.getElementById("peel-button");
+            peelButton.classList.add("btn-light");
+            peelButton.classList.remove("btn-primary");
+            peelButton.setAttribute("disabled", "");
+        }
+
+        // Create tile buttons for the player's hand
+        for (let i = 0; i < data["hand_tiles"].length; i++) {
+            const tile = data["hand_tiles"][i];
+            const tileElement = document.createElement("BUTTON");
+            tileElement.id = `tile-${i}`;
+            tileElement.classList.add("btn", "btn-tile", "hand-tile", "btn-light", "rounded-0");
+            tileElement.innerText = tile;
+
+            document.getElementById("tiles-div").appendChild(tileElement);
+        }
 }
 
 function deselectHandTile() {
@@ -96,6 +134,11 @@ function add_button_event_listeners(socket, roomName) {
                 "board_position": [boardPositionRow, boardPositionCol]
             })
         }
+    });
+
+    $("#peel-button").on('click', function () {
+        console.log("Sending peel...");
+        socket.emit("peel", {"room": roomName})
     });
 }
 
