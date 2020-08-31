@@ -52,49 +52,49 @@ function end_game() {
 
 function handleGameUpdate(data) {
     ///////////////////////////////////////////////////////////////
-        // Board update
-        for (let r = 0; r < data["board"].length; r++) {
-            let row = data["board"][r];
-            for (let c = 0; c < row.length; c++) {
-                let boardTile = row[c];
+    // Board update
+    for (let r = 0; r < data["board"].length; r++) {
+        let row = data["board"][r];
+        for (let c = 0; c < row.length; c++) {
+            let boardTile = row[c];
 
-                if (boardTile == null) {
-                    boardTile = "&nbsp;"
-                }
-
-                document.getElementById(`space-${r}-${c}`).innerHTML = boardTile;
+            if (boardTile == null) {
+                boardTile = "&nbsp;"
             }
+
+            document.getElementById(`space-${r}-${c}`).innerHTML = boardTile;
         }
+    }
 
-        ///////////////////////////////////////////////////////////////
-        // Hand tiles update
+    ///////////////////////////////////////////////////////////////
+    // Hand tiles update
 
-        // Clear out all tile buttons to ensure we have a clean state
-        $("#tiles-div").empty();
+    // Clear out all tile buttons to ensure we have a clean state
+    $("#tiles-div").empty();
 
-        // Ensure the peel button is enabled or disabled appropriately
-        if (data["hand_tiles"].length === 0) {
-            const peelButton = document.getElementById("peel-button");
-            peelButton.classList.remove("btn-light");
-            peelButton.classList.add("btn-primary");
-            peelButton.removeAttribute("disabled");
-        } else {
-            const peelButton = document.getElementById("peel-button");
-            peelButton.classList.add("btn-light");
-            peelButton.classList.remove("btn-primary");
-            peelButton.setAttribute("disabled", "");
-        }
+    // Ensure the peel button is enabled or disabled appropriately
+    if (data["hand_tiles"].length === 0) {
+        const peelButton = document.getElementById("peel-button");
+        peelButton.classList.remove("btn-light");
+        peelButton.classList.add("btn-primary");
+        peelButton.removeAttribute("disabled");
+    } else {
+        const peelButton = document.getElementById("peel-button");
+        peelButton.classList.add("btn-light");
+        peelButton.classList.remove("btn-primary");
+        peelButton.setAttribute("disabled", "");
+    }
 
-        // Create tile buttons for the player's hand
-        for (let i = 0; i < data["hand_tiles"].length; i++) {
-            const tile = data["hand_tiles"][i];
-            const tileElement = document.createElement("BUTTON");
-            tileElement.id = `tile-${i}`;
-            tileElement.classList.add("btn", "btn-tile", "hand-tile", "btn-light", "rounded-0");
-            tileElement.innerText = tile;
+    // Create tile buttons for the player's hand
+    for (let i = 0; i < data["hand_tiles"].length; i++) {
+        const tile = data["hand_tiles"][i];
+        const tileElement = document.createElement("BUTTON");
+        tileElement.id = `tile-${i}`;
+        tileElement.classList.add("btn", "btn-tile", "hand-tile", "btn-light", "rounded-0");
+        tileElement.innerText = tile;
 
-            document.getElementById("tiles-div").appendChild(tileElement);
-        }
+        document.getElementById("tiles-div").appendChild(tileElement);
+    }
 }
 
 function deselectHandTile() {
@@ -110,20 +110,36 @@ function add_button_event_listeners(socket, roomName) {
     console.log("Initializing button event listeners");
 
     $("#tiles-div").on('click', 'button', function () {
-        deselectHandTile();
+        const tileClicked = $(this)[0];
 
-        selectedHandTile = $(this)[0];
-        selectedHandTile.classList.remove("btn-light");
-        selectedHandTile.classList.add("btn-success");
+        if ((selectedHandTile != null) && (tileClicked.id === selectedHandTile.id)) {
+            // If clicking on the tile that is already selected, deselect it.
+            deselectHandTile();
+        } else {
+            // Otherwise, we have a new selected tile.
+            deselectHandTile();
+
+            selectedHandTile = tileClicked;
+            selectedHandTile.classList.remove("btn-light");
+            selectedHandTile.classList.add("btn-success");
+        }
     });
 
     $("#inner-button-container").on('click', 'button', function () {
-        if (selectedHandTile != null) {
-            const selectedSpot = $(this)[0];
+        const selectedSpot = $(this)[0];
+        const boardPositionRow = parseInt(selectedSpot.id.split("-")[1]);
+        const boardPositionCol = parseInt(selectedSpot.id.split("-")[2]);
 
+        if (selectedHandTile == null) {
+            // If we do not have a selected tile, remove the tile from the board.
+            socket.emit("remove_tile", {
+                "room": roomName,
+                "board_position": [boardPositionRow, boardPositionCol]
+            });
+        } else {
+            // If we have a selected tile, add it to the board.
             const handTileIndex = parseInt(selectedHandTile.id.replace("tile-", ""));
-            const boardPositionRow = parseInt(selectedSpot.id.split("-")[1]);
-            const boardPositionCol = parseInt(selectedSpot.id.split("-")[2]);
+
             console.log(`Placing ${selectedHandTile.id} at position (${boardPositionRow}, ${boardPositionCol})`);
 
             deselectHandTile();

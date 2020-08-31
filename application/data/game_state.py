@@ -99,6 +99,19 @@ class GameState:
         if replaced_tile:
             self.player_ids_to_tiles[player_id].append(replaced_tile)
 
+    def remove_tile(self, player_id: str, board_position: Tuple[int, int]) -> None:
+        """
+        Method to call when a player removes a tile from their board.
+        This method will also update the player's hand.
+
+        Args:
+            player_id: The ID of the player
+            board_position: The position on the board that the player wants to remove
+        """
+        removed_tile = self.player_ids_to_boards[player_id].remove_tile(board_position[0], board_position[1])
+        if removed_tile:
+            self.player_ids_to_tiles[player_id].append(removed_tile)
+
     def peel(self, player_id: str) -> Set[Tuple[int, int]]:
         """
         Method to call when a player attempts to peel.

@@ -40,7 +40,7 @@ def add_tile_event(message):
 
     session_id = flask.request.sid
     player_id = _get_player_id()
-    LOG.info(f"Received guess from {player_id}: {message}")
+    LOG.debug(f"Received add_tile from {player_id}: {message}")
 
     room = message["room"]
     hand_tile_index = message["hand_tile_index"]
@@ -48,6 +48,25 @@ def add_tile_event(message):
 
     game_state = _get_game_manager().get_game_state(room)
     game_state.add_tile(player_id, hand_tile_index, (board_position[0], board_position[1]))
+
+    emit("board_update", game_state.get_game_state(player_id), to=session_id)
+
+
+@socketio.on("remove_tile")
+def remove_tile_event(message):
+    """
+    Received when a player guesses a word.
+    """
+
+    session_id = flask.request.sid
+    player_id = _get_player_id()
+    LOG.debug(f"Received remove_tile from {player_id}: {message}")
+
+    room = message["room"]
+    board_position = message["board_position"]
+
+    game_state = _get_game_manager().get_game_state(room)
+    game_state.remove_tile(player_id, board_position)
 
     emit("board_update", game_state.get_game_state(player_id), to=session_id)
 
