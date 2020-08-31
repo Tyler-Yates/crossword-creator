@@ -131,12 +131,23 @@ function add_button_event_listeners(socket, roomName) {
         const boardPositionCol = parseInt(selectedSpot.id.split("-")[2]);
 
         if (selectedHandTile == null) {
+            // If the spot is empty, don't do anything.
+            if (selectedSpot.innerHTML === "&nbsp;") {
+                return;
+            }
+
+            // Clear invalid positions as the board state has changed.
+            clearInvalidPositions();
+
             // If we do not have a selected tile, remove the tile from the board.
             socket.emit("remove_tile", {
                 "room": roomName,
                 "board_position": [boardPositionRow, boardPositionCol]
             });
         } else {
+            // Clear invalid positions as the board state has changed.
+            clearInvalidPositions();
+
             // If we have a selected tile, add it to the board.
             const handTileIndex = parseInt(selectedHandTile.id.replace("tile-", ""));
 
@@ -156,6 +167,12 @@ function add_button_event_listeners(socket, roomName) {
         console.log("Sending peel...");
         socket.emit("peel", {"room": roomName})
     });
+}
+
+function clearInvalidPositions() {
+    $(".board-tile").each(function (index) {
+        $(this)[0].classList.remove("invalid-position");
+    })
 }
 
 function confirmAndStartNewGame(socket, roomName) {
