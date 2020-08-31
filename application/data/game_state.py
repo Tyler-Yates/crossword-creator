@@ -75,7 +75,10 @@ class GameState:
         Returns:
             the game state
         """
-        game_state = {"num_players": len(self.player_ids_to_names)}
+        game_state = {
+            "num_players": len(self.player_ids_to_names),
+            "tiles_left": self.tiles_left
+        }
         if player_id:
             # Add the board data to the response
             game_state["hand_tiles"] = self.player_ids_to_tiles[player_id]

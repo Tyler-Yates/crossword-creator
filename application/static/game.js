@@ -52,6 +52,11 @@ function end_game() {
 
 function handleGameUpdate(data) {
     ///////////////////////////////////////////////////////////////
+    // Status update
+    document.getElementById("num-players").innerText = data["num_players"];
+    document.getElementById("tiles-left").innerText = data["tiles_left"];
+
+    ///////////////////////////////////////////////////////////////
     // Board update
     for (let r = 0; r < data["board"].length; r++) {
         let row = data["board"][r];
