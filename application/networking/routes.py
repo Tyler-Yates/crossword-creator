@@ -22,7 +22,13 @@ def game_page(game_name: str):
     if game_state:
         player_id = _get_player_id()
         player_name = game_state.player_ids_to_names[player_id]
-        return render_template("game.html", game_state=game_state, player_id=player_id, player_name=player_name)
+        return render_template(
+            "game.html",
+            game_state=game_state,
+            player_id=player_id,
+            player_name=player_name,
+            num_players=len(game_state.player_ids_to_names),
+        )
     return "Could not find game!", 404
 
 
