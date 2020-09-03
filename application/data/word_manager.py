@@ -18,6 +18,4 @@ class WordManager:
             self.words = words
 
     def is_word(self, word: str) -> bool:
-        # TODO change back
-        return True
         return word.lower() in self.words
