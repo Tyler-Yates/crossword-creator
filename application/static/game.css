@@ -9,13 +9,13 @@ body {
 .btn-tile {
     height: 30px;
     width: 30px;
-    font-size: 100%;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     border: 1px solid grey !important;
     color: black;
     text-transform: uppercase;
+    padding: 0;
 }
 
 .btn-tile:disabled {

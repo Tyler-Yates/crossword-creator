@@ -38,6 +38,14 @@ $(document).ready(function () {
 
     socket.on("game_over", function (data) {
         console.log(data);
+
+        // Set the winning player
+        const winningPlayer = data["winning_player"];
+        document.getElementById("message-banner").innerText = `Player ${winningPlayer} has won!`;
+
+        // Make it so the player cannot peel
+        const peelButton = document.getElementById("peel-button");
+        peelButton.setAttribute("disabled", "");
     });
 
     // Add event listeners to the buttons

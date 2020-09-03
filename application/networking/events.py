@@ -89,14 +89,24 @@ def peel_event(message):
     if game_state:
         invalid_positions = game_state.peel(player_id)
         if len(invalid_positions) == 0:
-            # If the peel was successful, notify all players
+            # If the peel was successful, notify all players.
             for player_id in game_state.player_ids_to_session_ids.keys():
-                data_to_send = {
-                    "peeling_player": game_state.player_ids_to_names[player_id],
-                    **game_state.get_game_state(player_id),
-                }
-                player_session_id = game_state.player_ids_to_session_ids[player_id]
-                emit("peel", data_to_send, to=player_session_id)
+                if game_state.game_running:
+                    # Game is still running. Update players.
+                    data_to_send = {
+                        "peeling_player": game_state.player_ids_to_names[player_id],
+                        **game_state.get_game_state(player_id),
+                    }
+                    player_session_id = game_state.player_ids_to_session_ids[player_id]
+                    emit("peel", data_to_send, to=player_session_id)
+                else:
+                    # The game is over. Notify players of who one.
+                    data_to_send = {
+                        "winning_player": game_state.player_ids_to_names[player_id],
+                        **game_state.get_game_state(player_id),
+                    }
+                    player_session_id = game_state.player_ids_to_session_ids[player_id]
+                    emit("game_over", data_to_send, to=player_session_id)
         else:
             # If the peel is not valid, only the player who tried to peel should get a message
             emit("unsuccessful_peel", {"invalid_positions": list(invalid_positions)}, to=session_id)

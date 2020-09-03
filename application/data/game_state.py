@@ -30,6 +30,7 @@ class GameState:
         self.player_ids_to_session_ids: Dict[str, str] = {}
 
         self.tiles_left = -1
+        self.winning_player_id = None
         self.game_running = False
 
     def new_player(self, player_id: str, player_name: str) -> bool:
@@ -61,9 +62,16 @@ class GameState:
         self.game_running = True
         self._log_info("Game started")
 
-    def end_game(self):
+    def end_game(self, winning_player: str):
+        """
+        Method to call when a game is over.
+
+        Args:
+            winning_player: The player that one the game.
+        """
         self.game_running = False
-        self._log_info("Game ended")
+        self.winning_player_id = winning_player
+        self._log_info(f"Game ended. Winning player: ${winning_player}")
 
     def get_game_state(self, player_id: str = None) -> Dict[str, object]:
         """
@@ -126,6 +134,9 @@ class GameState:
         Returns:
             A set of positions on the board that are not valid. May be empty, indicating a successful peel.
         """
+        if not self.game_running:
+            raise ValueError("Cannot peel while game is over.")
+
         invalid_positions = self.player_ids_to_boards[player_id].board_is_valid_crossword()
 
         if len(invalid_positions) == 0:
@@ -133,7 +144,9 @@ class GameState:
                 self.player_ids_to_tiles[player_id].append(Tiles.generate_tile())
                 self.tiles_left -= 1
 
-        # TODO handle winning conditions
+        # If there are no more tiles to give out, end the game
+        if self.tiles_left < 0:
+            self.end_game(player_id)
 
         return invalid_positions
 
