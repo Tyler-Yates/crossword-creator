@@ -5,7 +5,7 @@ from application.data.board import Board
 from application.data.tiles import Tiles
 from application.data.word_manager import WordManager
 
-STARTING_TILES_PER_PLAYER = 5  # TODO change this back
+STARTING_TILES_PER_PLAYER = 3  # TODO change this back
 TILES_PER_PLAYER = STARTING_TILES_PER_PLAYER * 2
 BOARD_SIZE = 25
 
