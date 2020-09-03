@@ -73,3 +73,7 @@ body {
     padding: 10px;
     border: solid 1px darkgray;
 }
+
+.right-row {
+    margin-top: 15px;
+}

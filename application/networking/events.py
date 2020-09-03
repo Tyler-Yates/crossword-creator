@@ -112,6 +112,21 @@ def peel_event(message):
             emit("unsuccessful_peel", {"invalid_positions": list(invalid_positions)}, to=session_id)
 
 
+@socketio.on("exchange")
+def exchange_event(message):
+    session_id = flask.request.sid
+    player_id = _get_player_id()
+    hand_tile_index = message["hand_tile_index"]
+    LOG.info(f"Received exchange from {player_id}: {message}")
+
+    room = message["room"]
+
+    game_state = _get_game_manager().get_game_state(room)
+    if game_state:
+        game_state.exchange_tile(player_id, hand_tile_index)
+        emit("board_update", game_state.get_game_state(player_id), to=session_id)
+
+
 def _get_player_id() -> str:
     return flask.request.remote_addr
 

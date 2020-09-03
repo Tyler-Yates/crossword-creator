@@ -28,6 +28,7 @@ def game_page(game_name: str):
             player_id=player_id,
             player_name=player_name,
             num_players=len(game_state.player_ids_to_names),
+            tiles_left=game_state.tiles_left
         )
     return "Could not find game!", 404
 

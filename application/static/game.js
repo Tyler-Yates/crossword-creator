@@ -118,10 +118,31 @@ function deselectHandTile() {
     }
 }
 
+function ensureExchangeButtonStateCorrect() {
+    const exchangeButton = document.getElementById("exchange-button");
+
+    if (selectedHandTile == null) {
+        exchangeButton.setAttribute("disabled", "");
+        exchangeButton.classList.remove("btn-warning");
+        exchangeButton.classList.add("btn-light");
+    } else {
+        // Only enable the button if we have enough tiles left.
+        const tilesRemaining = parseInt(document.getElementById("tiles-left").innerText);
+        if (tilesRemaining < 3) {
+            return;
+        }
+
+        exchangeButton.removeAttribute("disabled");
+        exchangeButton.classList.add("btn-warning");
+        exchangeButton.classList.remove("btn-light");
+    }
+}
+
 // Function that sets up the logic for emitting a socket message when clicking on a button.
 function add_button_event_listeners(socket, roomName) {
     console.log("Initializing button event listeners");
 
+    // Clicking on a tile in the player's hand
     $("#tiles-div").on('click', 'button', function () {
         const tileClicked = $(this)[0];
 
@@ -136,8 +157,11 @@ function add_button_event_listeners(socket, roomName) {
             selectedHandTile.classList.remove("btn-light");
             selectedHandTile.classList.add("btn-success");
         }
+
+        ensureExchangeButtonStateCorrect();
     });
 
+    // Clicking on a tile on the board
     $("#inner-button-container").on('click', 'button', function () {
         const selectedSpot = $(this)[0];
         const boardPositionRow = parseInt(selectedSpot.id.split("-")[1]);
@@ -174,11 +198,27 @@ function add_button_event_listeners(socket, roomName) {
                 "board_position": [boardPositionRow, boardPositionCol]
             })
         }
+
+        ensureExchangeButtonStateCorrect();
     });
 
     $("#peel-button").on('click', function () {
         console.log("Sending peel...");
         socket.emit("peel", {"room": roomName})
+    });
+
+    $("#exchange-button").on('click', function () {
+        if (selectedHandTile == null) {
+            console.warn("Trying to exchange empty tile!");
+            return;
+        }
+
+        const handTileIndex = parseInt(selectedHandTile.id.replace("tile-", ""));
+        deselectHandTile();
+        ensureExchangeButtonStateCorrect();
+
+        console.log(`Exchanging tile ${handTileIndex}...`);
+        socket.emit("exchange", {"room": roomName, "hand_tile_index": handTileIndex})
     });
 }
 

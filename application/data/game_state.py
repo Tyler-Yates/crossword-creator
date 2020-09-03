@@ -8,6 +8,7 @@ from application.data.word_manager import WordManager
 STARTING_TILES_PER_PLAYER = 3  # TODO change this back
 TILES_PER_PLAYER = STARTING_TILES_PER_PLAYER * 2
 BOARD_SIZE = 25
+EXCHANGE_TILES = 3
 
 LOG = logging.getLogger("GameState")
 
@@ -122,6 +123,27 @@ class GameState:
         removed_tile = self.player_ids_to_boards[player_id].remove_tile(board_position[0], board_position[1])
         if removed_tile:
             self.player_ids_to_tiles[player_id].append(removed_tile)
+
+    def exchange_tile(self, player_id: str, hand_tile_index: int) -> List[str]:
+        """
+        Method to call when a player exchanges a tile in their hand with three from the pile.
+        This method will update the player's hand.
+
+        Args:
+            player_id: The player ID
+            hand_tile_index: The index of the tile in the player's hand
+
+        Returns:
+            The tiles that were added to the player's hand.
+        """
+        if self.tiles_left < EXCHANGE_TILES:
+            raise ValueError("Cannot exchange. Not enough tiles.")
+
+        self.player_ids_to_tiles[player_id].pop(hand_tile_index)
+        new_tiles = Tiles.generate_tiles(EXCHANGE_TILES)
+        self.player_ids_to_tiles[player_id].extend(new_tiles)
+        self.tiles_left -= EXCHANGE_TILES
+        return new_tiles
 
     def peel(self, player_id: str) -> Set[Tuple[int, int]]:
         """

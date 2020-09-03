@@ -32,7 +32,7 @@
                 Players:&nbsp;<span id="num-players">{{ num_players }}</span>
             </div>
             <div class="row">
-                Tiles Left:&nbsp;<span id="tiles-left">_</span>
+                Tiles Left:&nbsp;<span id="tiles-left">{{ tiles_left }}</span>
             </div>
         </div>
         <div id="message-banner" class="container banner">
@@ -75,9 +75,16 @@
             {% endfor %}
         </div>
         <div id="right-container" class="container">
-            <button id="peel-button" class="btn btn-light" disabled>
-                Peel
-            </button>
+            <div class="row right-row">
+                <button id="peel-button" class="btn btn-light" disabled>
+                    Peel
+                </button>
+            </div>
+            <div class="row right-row">
+                <button id="exchange-button" class="btn btn-light" disabled>
+                    Exchange for 3 Tiles
+                </button>
+            </div>
         </div>
     </div>
 </div>
