@@ -128,7 +128,10 @@ def exchange_event(message):
 
 
 def _get_player_id() -> str:
-    return flask.request.remote_addr
+    if flask.request.headers.getlist("X-Forwarded-For"):
+        return flask.request.headers.getlist("X-Forwarded-For")[0]
+    else:
+        return flask.request.remote_addr
 
 
 def _get_game_manager() -> GameManager:
