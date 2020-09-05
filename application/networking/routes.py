@@ -44,7 +44,6 @@ def create_game():
 
     game_state = _get_game_manager().create_game()
     game_state.new_player(player_id, player_name)
-    game_state.start_game()  # TODO do not do this as soon as game starts
     return redirect(f"/games/{game_state.game_name}", code=302)
 
 
@@ -58,12 +57,15 @@ def join_game():
     else:
         return "Invalid information!", 400
 
-    LOG.info(f"Player ${player_id} joining game ${game_name}")
+    LOG.info(f"Player {player_id} joining game {game_name}")
 
     game_state = _get_game_manager().get_game_state(game_name)
     if game_name:
-        game_state.new_player(player_id, player_name)
-        return redirect(f"/games/{game_state.game_name}", code=302)
+        successful_join = game_state.new_player(player_id, player_name)
+        if successful_join:
+            return redirect(f"/games/{game_state.game_name}", code=302)
+        else:
+            return "Game has already started!", 400
     else:
         return "Could not find game!", 404
 
