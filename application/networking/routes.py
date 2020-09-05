@@ -48,6 +48,26 @@ def create_game():
     return redirect(f"/games/{game_state.game_name}", code=302)
 
 
+@main.route("/join_game", methods=["POST"])
+def join_game():
+    player_id = _get_player_id()
+
+    if request.form:
+        player_name = request.form.get("player_name", player_id)
+        game_name = request.form.get("game_name")
+    else:
+        return "Invalid information!", 400
+
+    LOG.info(f"Player ${player_id} joining game ${game_name}")
+
+    game_state = _get_game_manager().get_game_state(game_name)
+    if game_name:
+        game_state.new_player(player_id, player_name)
+        return redirect(f"/games/{game_state.game_name}", code=302)
+    else:
+        return "Could not find game!", 404
+
+
 def _get_game_manager() -> GameManager:
     return current_app.config[GAME_MANAGER_CONFIG_KEY]
 
