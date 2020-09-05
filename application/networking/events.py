@@ -82,7 +82,9 @@ def new_game_event(message):
         game_state.start_game()
         for player_id in game_state.player_ids_to_session_ids.keys():
             session_id = game_state.player_ids_to_session_ids[player_id]
-            emit("board_update", game_state.get_game_state(player_id), to=session_id)
+            game_state_update = game_state.get_game_state(player_id)
+            LOG.info(f"Sending update {game_state_update} to {player_id}")
+            emit("board_update", game_state_update, to=session_id)
 
 
 @socketio.on("peel")
