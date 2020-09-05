@@ -46,17 +46,14 @@ $(document).ready(function () {
         // Make it so the player cannot peel
         const peelButton = document.getElementById("peel-button");
         peelButton.setAttribute("disabled", "");
+
+        const startGameButton = document.getElementById("start-game-button");
+        startGameButton.removeAttribute("disabled");
     });
 
     // Add event listeners to the buttons
     add_button_event_listeners(socket, roomName);
 });
-
-function end_game() {
-    // const guessButtonElement = document.getElementById("guessWordSubmit");
-    // const disabledAttribute = document.createAttribute("disabled");
-    // guessButtonElement.setAttributeNode(disabledAttribute);
-}
 
 function handleGameUpdate(data) {
     ///////////////////////////////////////////////////////////////
@@ -220,19 +217,20 @@ function add_button_event_listeners(socket, roomName) {
         console.log(`Exchanging tile ${handTileIndex}...`);
         socket.emit("exchange", {"room": roomName, "hand_tile_index": handTileIndex})
     });
+
+    $("#start-game-button").on('click', function () {
+        const confirmation = confirm("Do you want to start a new game? The current board will be cleared.");
+        if (confirmation === true) {
+            console.log("Starting game");
+            const startGameButton = document.getElementById("start-game-button");
+            startGameButton.setAttribute("disabled", "");
+            socket.emit("start_game", {"room": roomName});
+        }
+    });
 }
 
 function clearInvalidPositions() {
     $(".board-tile").each(function (index) {
         $(this)[0].classList.remove("invalid-position");
     })
-}
-
-function confirmAndStartNewGame(socket, roomName) {
-    const confirmation = confirm("Do you want to start a new game? The current board will be cleared.");
-    if (confirmation === true) {
-        clearPath();
-        console.info("Starting new game...");
-        socket.emit('new_game', {'room': roomName});
-    }
 }

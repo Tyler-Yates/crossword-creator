@@ -71,10 +71,18 @@ def remove_tile_event(message):
     emit("board_update", game_state.get_game_state(player_id), to=session_id)
 
 
-@socketio.on("new_game")
+@socketio.on("start_game")
 def new_game_event(message):
-    # TODO
-    pass
+    player_id = _get_player_id()
+    room = message["room"]
+    LOG.info(f"Received start_game from {player_id} for room {room}: {message}")
+
+    game_state = _get_game_manager().get_game_state(room)
+    if game_state:
+        game_state.start_game()
+        for player_id in game_state.player_ids_to_session_ids.keys():
+            session_id = game_state.player_ids_to_session_ids[player_id]
+            emit("board_update", game_state.get_game_state(player_id), to=session_id)
 
 
 @socketio.on("peel")

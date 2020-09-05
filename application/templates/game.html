@@ -11,7 +11,14 @@
 </head>
 <body>
 <div class="game-header">
-    <h1>Crossword Creator: <span id="game-name">{{ game_state.game_name }}</span></h1>
+    <div class="row">
+        <div id="game-meta-info" class="container">
+            <h1>Crossword Creator: <span id="game-name">{{ game_state.game_name }}</span></h1>
+        </div>
+        <div id="top-button-div" class="container">
+            <button id="start-game-button" class="btn btn-success">Start Game</button>
+        </div>
+    </div>
 </div>
 
 <div class="w-100">
