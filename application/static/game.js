@@ -10,16 +10,13 @@ $(document).ready(function () {
         socket.emit('join', {'room': roomName});
     });
 
-    socket.on("game_state", function (data) {
-        console.log(data);
-    });
-
     socket.on("peel", function (data) {
         const player = data["peeling_player"];
         console.log(`Player ${player} has peeled.`);
         document.getElementById("message-banner").innerText = `Player ${player} has peeled.`;
 
-        handleGameUpdate(data);
+        // Request an update of our hand now that a player has peeled.
+        socket.emit("update_request", {"room": roomName});
     });
 
     socket.on("unsuccessful_peel", function (data) {
@@ -28,6 +25,13 @@ $(document).ready(function () {
             const invalidPosition = document.getElementById(`space-${position[0]}-${position[1]}`);
             invalidPosition.classList.add("invalid-position");
         })
+    });
+
+    // When the server lets us know that the board has changed, ask the server for the update providing our player ID.
+    socket.on("request_update", function (data) {
+        console.log(data);
+
+        socket.emit("update_request", {"room": roomName});
     });
 
     socket.on("board_update", function (data) {
@@ -55,16 +59,29 @@ $(document).ready(function () {
     add_button_event_listeners(socket, roomName);
 });
 
+function getPlayerId() {
+    return document.cookie.split('; ').find(row => row.startsWith('playerId')).split('=')[1];
+}
+
 function handleGameUpdate(data) {
     ///////////////////////////////////////////////////////////////
     // Status update
     document.getElementById("num-players").innerText = data["num_players"];
     document.getElementById("tiles-left").innerText = data["tiles_left"];
+    const player_data = data["players"][getPlayerId()];
+
+    // Enable or disable the start game button appropriately
+    const startGameButton = document.getElementById("start-game-button");
+    if (data["game_running"]) {
+        startGameButton.setAttribute("disabled", "");
+    } else {
+        startGameButton.removeAttribute("disabled");
+    }
 
     ///////////////////////////////////////////////////////////////
     // Board update
-    for (let r = 0; r < data["board"].length; r++) {
-        let row = data["board"][r];
+    for (let r = 0; r < player_data["board"].length; r++) {
+        let row = player_data["board"][r];
         for (let c = 0; c < row.length; c++) {
             let boardTile = row[c];
 
@@ -83,7 +100,7 @@ function handleGameUpdate(data) {
     $("#tiles-div").empty();
 
     // Ensure the peel button is enabled or disabled appropriately
-    if (data["hand_tiles"].length === 0) {
+    if (player_data["hand_tiles"].length === 0) {
         const peelButton = document.getElementById("peel-button");
         peelButton.classList.remove("btn-light");
         peelButton.classList.add("btn-primary");
@@ -96,8 +113,8 @@ function handleGameUpdate(data) {
     }
 
     // Create tile buttons for the player's hand
-    for (let i = 0; i < data["hand_tiles"].length; i++) {
-        const tile = data["hand_tiles"][i];
+    for (let i = 0; i < player_data["hand_tiles"].length; i++) {
+        const tile = player_data["hand_tiles"][i];
         const tileElement = document.createElement("BUTTON");
         tileElement.id = `tile-${i}`;
         tileElement.classList.add("btn", "btn-tile", "hand-tile", "btn-light", "rounded-0");

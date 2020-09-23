@@ -28,7 +28,6 @@ class GameState:
         self.player_ids_to_names = {}
         self.player_ids_to_tiles: Dict[str, List[str]] = {}
         self.player_ids_to_boards: Dict[str, Board] = {}
-        self.player_ids_to_session_ids: Dict[str, str] = {}
 
         self.tiles_left = -1
         self.winning_player_id = None
@@ -74,7 +73,7 @@ class GameState:
         self.winning_player_id = winning_player
         self._log_info(f"Game ended. Winning player: ${winning_player}")
 
-    def get_game_state(self, player_id: str = None) -> Dict[str, object]:
+    def get_game_state(self, player_id: str) -> Dict[str, object]:
         """
         Returns the state of the game when a player joins or reloads the game.
 
@@ -84,11 +83,16 @@ class GameState:
         Returns:
             the game state
         """
-        game_state = {"num_players": len(self.player_ids_to_names), "tiles_left": self.tiles_left}
-        if player_id:
-            # Add the board data to the response
-            game_state["hand_tiles"] = self.player_ids_to_tiles[player_id]
-            game_state = {**game_state, **self.player_ids_to_boards[player_id].get_json()}
+        game_state = {
+            "num_players": len(self.player_ids_to_names),
+            "tiles_left": self.tiles_left,
+            "players": {},
+            "game_running": self.game_running
+        }
+        player_dict = {"hand_tiles": self.player_ids_to_tiles[player_id]}
+        player_dict = {**player_dict, **self.player_ids_to_boards[player_id].get_json()}
+        game_state["players"][player_id] = player_dict
+
         return game_state
 
     def add_tile(self, player_id: str, hand_tile_index: int, board_position: Tuple[int, int]) -> None:

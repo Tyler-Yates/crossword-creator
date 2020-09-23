@@ -19,15 +19,13 @@ def joined_event(message):
     room = message["room"]
     join_room(room)
 
-    session_id = flask.request.sid
     player_id = _get_player_id()
 
     game_state = _get_game_manager().get_game_state(room)
     if game_state:
         LOG.info(f"User {player_id} has joined room {room}")
-        game_state.player_ids_to_session_ids[player_id] = session_id
-        # Only send the game_state update to the SocketIO session ID as the other players do not need to know
-        emit("game_state", game_state.get_game_state(player_id=player_id), to=session_id)
+        # All players should update their game status now that a new player has joined
+        emit("request_update", {"request_update": True}, room=room)
     else:
         LOG.warning(f"User {player_id} has joined invalid room {room}")
 
@@ -80,11 +78,19 @@ def new_game_event(message):
     game_state = _get_game_manager().get_game_state(room)
     if game_state:
         game_state.start_game()
-        for player_id in game_state.player_ids_to_session_ids.keys():
-            session_id = game_state.player_ids_to_session_ids[player_id]
-            game_state_update = game_state.get_game_state(player_id)
-            LOG.info(f"Sending update {game_state_update} to {player_id}")
-            emit("board_update", game_state_update, to=session_id)
+        emit("request_update", {"request_update": True}, room=room)
+
+
+@socketio.on("update_request")
+def update_request_event(message):
+    session_id = flask.request.sid
+    player_id = _get_player_id()
+    room = message["room"]
+    LOG.info(f"Received update_request from {player_id} for room {room}: {message}")
+
+    game_state = _get_game_manager().get_game_state(room)
+    if game_state:
+        emit("board_update", game_state.get_game_state(player_id), to=session_id)
 
 
 @socketio.on("peel")
@@ -100,23 +106,12 @@ def peel_event(message):
         invalid_positions = game_state.peel(player_id)
         if len(invalid_positions) == 0:
             # If the peel was successful, notify all players.
-            for player_id in game_state.player_ids_to_session_ids.keys():
-                if game_state.game_running:
-                    # Game is still running. Update players.
-                    data_to_send = {
-                        "peeling_player": game_state.player_ids_to_names[player_id],
-                        **game_state.get_game_state(player_id),
-                    }
-                    player_session_id = game_state.player_ids_to_session_ids[player_id]
-                    emit("peel", data_to_send, to=player_session_id)
-                else:
-                    # The game is over. Notify players of who one.
-                    data_to_send = {
-                        "winning_player": game_state.player_ids_to_names[player_id],
-                        **game_state.get_game_state(player_id),
-                    }
-                    player_session_id = game_state.player_ids_to_session_ids[player_id]
-                    emit("game_over", data_to_send, to=player_session_id)
+            if game_state.game_running:
+                # Game is still running. Update players.
+                emit("peel", {"peeling_player": game_state.player_ids_to_names[player_id]}, room=room)
+            else:
+                # The game is over. Notify players of who one.
+                emit("game_over", {"winning_player": game_state.player_ids_to_names[player_id]}, room=room)
         else:
             # If the peel is not valid, only the player who tried to peel should get a message
             emit("unsuccessful_peel", {"invalid_positions": list(invalid_positions)}, to=session_id)
