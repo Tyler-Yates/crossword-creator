@@ -39,6 +39,7 @@ class Tiles:
                 "e",
                 "e",
                 "e",
+                "e",
                 "f",
                 "g",
                 "h",
