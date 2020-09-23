@@ -75,7 +75,7 @@ def _get_game_manager() -> GameManager:
 
 
 def _get_player_id() -> str:
-    if flask.request.headers.getlist("X-Forwarded-For"):
-        return flask.request.headers.getlist("X-Forwarded-For")[0]
+    if "playerId" in request.cookies:
+        return flask.request.cookies["playerId"]
     else:
-        return flask.request.remote_addr
+        raise ValueError("No playerId detected!")
