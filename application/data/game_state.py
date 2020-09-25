@@ -93,7 +93,7 @@ class GameState:
             "num_players": len(self.player_ids_to_names),
             "tiles_left": self.tiles_left,
             "players": {},
-            "game_running": self.game_running
+            "game_running": self.game_running,
         }
         player_dict = {"hand_tiles": self.player_ids_to_tiles[player_id]}
         player_dict = {**player_dict, **self.player_ids_to_boards[player_id].get_json()}

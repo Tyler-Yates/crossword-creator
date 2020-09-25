@@ -182,5 +182,85 @@ class Board:
         # Now, ensure all tiles make a valid crossword of recognized words.
         return self._check_valid_words()
 
+    def shift_board_down(self) -> bool:
+        """
+        Shifts the entire board down one row if possible.
+
+        Returns:
+            True if the shift occurred, False otherwise
+        """
+        for c in range(self.board_size):
+            if self.board[self.board_size - 1][c] is not None:
+                return False
+
+        for r in range(self.board_size - 1, 0, -1):
+            for c in range(self.board_size):
+                self.board[r][c] = self.board[r - 1][c]
+
+        for c in range(self.board_size):
+            self.board[0][c] = None
+
+        return True
+
+    def shift_board_up(self) -> bool:
+        """
+        Shifts the entire board up one row if possible.
+
+        Returns:
+            True if the shift occurred, False otherwise
+        """
+        for c in range(self.board_size):
+            if self.board[0][c] is not None:
+                return False
+
+        for r in range(0, self.board_size - 1):
+            for c in range(self.board_size):
+                self.board[r][c] = self.board[r + 1][c]
+
+        for c in range(self.board_size):
+            self.board[self.board_size - 1][c] = None
+
+        return True
+
+    def shift_board_right(self) -> bool:
+        """
+        Shifts the entire board right one row if possible.
+
+        Returns:
+            True if the shift occurred, False otherwise
+        """
+        for r in range(self.board_size):
+            if self.board[r][self.board_size - 1] is not None:
+                return False
+
+        for c in range(self.board_size - 1, 0, -1):
+            for r in range(self.board_size):
+                self.board[r][c] = self.board[r][c - 1]
+
+        for r in range(self.board_size):
+            self.board[r][0] = None
+
+        return True
+
+    def shift_board_left(self) -> bool:
+        """
+        Shifts the entire board left one row if possible.
+
+        Returns:
+            True if the shift occurred, False otherwise
+        """
+        for r in range(self.board_size):
+            if self.board[r][0] is not None:
+                return False
+
+        for c in range(0, self.board_size - 1):
+            for r in range(self.board_size):
+                self.board[r][c] = self.board[r][c + 1]
+
+        for r in range(self.board_size):
+            self.board[r][self.board_size - 1] = None
+
+        return True
+
     def get_json(self) -> Dict[str, object]:
         return {"board": self.board}
