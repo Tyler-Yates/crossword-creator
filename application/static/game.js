@@ -13,7 +13,7 @@ $(document).ready(function () {
     socket.on("peel", function (data) {
         const player = data["peeling_player"];
         console.log(`Player ${player} has peeled.`);
-        document.getElementById("message-banner").innerText = `Player ${player} has peeled.`;
+        updateMessageBanner(`Player ${player} has peeled.`);
 
         // Request an update of our hand now that a player has peeled.
         socket.emit("update_request", {"room": roomName});
@@ -32,7 +32,7 @@ $(document).ready(function () {
         console.log(data);
 
         if ("message" in data) {
-            document.getElementById("message-banner").innerText = data["message"];
+            updateMessageBanner(data["message"]);
         }
 
         socket.emit("update_request", {"room": roomName});
@@ -49,7 +49,7 @@ $(document).ready(function () {
 
         // Set the winning player
         const winningPlayer = data["winning_player"];
-        document.getElementById("message-banner").innerText = `Player ${winningPlayer} has won!`;
+        updateMessageBanner(`Player ${winningPlayer} has won!`);
 
         // Make it so the player cannot peel
         const peelButton = document.getElementById("peel-button");
@@ -126,6 +126,18 @@ function handleGameUpdate(data) {
 
         document.getElementById("tiles-div").appendChild(tileElement);
     }
+}
+
+function updateMessageBanner(message) {
+    const messageBanner = document.getElementById("message-banner");
+    messageBanner.innerText = message;
+
+    messageBanner.classList.add("pulse");
+
+    // Reset the animation
+    messageBanner.style.animation = 'none';
+    messageBanner.offsetHeight;  // This triggers DOM re-flow
+    messageBanner.style.animation = null;
 }
 
 function deselectHandTile() {

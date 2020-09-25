@@ -77,3 +77,24 @@ body {
 .right-row {
     margin-top: 15px;
 }
+
+.pulse {
+    animation: pulse 2s linear 0s;
+}
+
+@keyframes pulse {
+    0% {
+        background-color: white;
+    }
+    33% {
+        color: white;
+        background-color: coral;
+    }
+    66% {
+        color: white;
+        background-color: coral;
+    }
+    100% {
+        background-color: white;
+    }
+}
