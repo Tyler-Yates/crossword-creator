@@ -232,9 +232,27 @@ function add_button_event_listeners(socket, roomName) {
         ensureExchangeButtonStateCorrect();
     });
 
+    // Shift buttons
+    $("#shift-up-button").on('click', function () {
+        console.log("Shifting board up...");
+        socket.emit("shift_board", {"room": roomName, "direction": "up"});
+    });
+    $("#shift-down-button").on('click', function () {
+        console.log("Shifting board down...");
+        socket.emit("shift_board", {"room": roomName, "direction": "down"});
+    });
+    $("#shift-left-button").on('click', function () {
+        console.log("Shifting board left...");
+        socket.emit("shift_board", {"room": roomName, "direction": "left"});
+    });
+    $("#shift-right-button").on('click', function () {
+        console.log("Shifting board right...");
+        socket.emit("shift_board", {"room": roomName, "direction": "right"});
+    });
+
     $("#peel-button").on('click', function () {
         console.log("Sending peel...");
-        socket.emit("peel", {"room": roomName})
+        socket.emit("peel", {"room": roomName});
     });
 
     $("#exchange-button").on('click', function () {

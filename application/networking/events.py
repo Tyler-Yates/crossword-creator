@@ -134,6 +134,34 @@ def exchange_event(message):
         emit("board_update", game_state.get_game_state(player_id), to=session_id)
 
 
+@socketio.on("shift_board")
+def shift_board_event(message):
+    session_id = flask.request.sid
+    player_id = _get_player_id()
+    LOG.info(f"Received shift_board from {player_id}: {message}")
+
+    room = message["room"]
+
+    game_state = _get_game_manager().get_game_state(room)
+    if game_state:
+        if not game_state.game_running:
+            return
+
+        direction = message.get("direction", None)
+        if "up" == direction:
+            game_state.player_ids_to_boards[player_id].shift_board_up()
+        elif "down" == direction:
+            game_state.player_ids_to_boards[player_id].shift_board_down()
+        elif "left" == direction:
+            game_state.player_ids_to_boards[player_id].shift_board_left()
+        elif "right" == direction:
+            game_state.player_ids_to_boards[player_id].shift_board_right()
+        else:
+            raise ValueError(f"Invalid direction specified for board shift: {direction}")
+
+        emit("board_update", game_state.get_game_state(player_id), to=session_id)
+
+
 def _get_player_id() -> str:
     if "playerId" in flask.request.cookies:
         return flask.request.cookies["playerId"]
