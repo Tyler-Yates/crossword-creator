@@ -104,7 +104,7 @@ function handleGameUpdate(data) {
     $("#tiles-div").empty();
 
     // Ensure the peel button is enabled or disabled appropriately
-    if (player_data["hand_tiles"].length === 0) {
+    if (player_data["hand_tiles"].length === 0 && data["game_running"]) {
         const peelButton = document.getElementById("peel-button");
         peelButton.classList.remove("btn-light");
         peelButton.classList.add("btn-primary");
