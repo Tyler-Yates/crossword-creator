@@ -57,8 +57,14 @@ class GameState:
             return True
 
     def start_game(self):
+        # Reset the boards
+        for player_id in self.player_ids_to_boards:
+            self.player_ids_to_boards[player_id] = Board(player_id, BOARD_SIZE, self.word_manager)
+
+        # Reset the tiles
         self.tiles_left = TILES_PER_PLAYER * len(self.player_ids_to_names.keys())
         self._generate_player_tiles()
+
         self.game_running = True
         self._log_info("Game started")
 
