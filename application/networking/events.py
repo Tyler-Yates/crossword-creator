@@ -25,7 +25,9 @@ def joined_event(message):
     if game_state:
         LOG.info(f"User {player_id} has joined room {room}")
         # All players should update their game status now that a new player has joined
-        emit("request_update", {"request_update": True}, room=room)
+        player_name = game_state.player_ids_to_names.get(player_id)
+        update = {"request_update": True, "message": f"Player {player_name} has joined the game"}
+        emit("request_update", update, room=room)
     else:
         LOG.warning(f"User {player_id} has joined invalid room {room}")
 

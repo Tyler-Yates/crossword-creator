@@ -31,6 +31,10 @@ $(document).ready(function () {
     socket.on("request_update", function (data) {
         console.log(data);
 
+        if ("message" in data) {
+            document.getElementById("message-banner").innerText = data["message"];
+        }
+
         socket.emit("update_request", {"room": roomName});
     });
 
